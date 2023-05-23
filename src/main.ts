@@ -1,56 +1,99 @@
 import 'phaser';
 import player from './assets/player.png';
-
+import { Player } from './player';
+type Keys = {
+    jump: Phaser.Input.Keyboard.Key | null,
+    left: Phaser.Input.Keyboard.Key | null,
+    right: Phaser.Input.Keyboard.Key | null,
+}
 class TestScene extends Phaser.Scene {
-    player: Phaser.Physics.Arcade.Sprite;
+    player: null | Player;
+    ghost: null | Phaser.GameObjects.Sprite;
+    w: number
+    h: number
+    keys: Keys
+    
+    //constants. modify these to tweak 
+    static GRAVITY: number = 50;
+    static X_INC: number = 600;
+    
     constructor() {
         super('test');
+        this.w = 0;
+        this.h = 0;
+        this.player = null;
+        this.ghost = null;
+        this.keys = {
+            jump: null,
+            left: null,
+            right: null,
+        };
     }
     preload() {
-
         this.load.image('player', player);
     }
-    jump() {
-        if (this.player.jumpCount) {
-            this.player.setVelocityY(-1000);
-            this.player.jumpCount--;
-        }
+    addKeys(){
+        this.keys.jump = this.input.keyboard!.addKey('W');
+        this.keys.left = this.input.keyboard!.addKey('A');
+        this.keys.right = this.input.keyboard!.addKey('D');
+        this.keys.jump?.on('down', () => {
+            this.player?.jump();
+        })
+    }
+    setUp(){
+        this.addKeys();
+        this.w = this.game.config.width as number;
+        this.h = this.game.config.height as number;
+        this.player = new Player(this, this.w / 2, this.h / 2, 'player').setScale(0.5);
+        this.add.existing(this.player);
+        this.physics.add.existing(this.player);
+        this.physics.world.setBounds(0, 0, this.w, this.h);
+        this.player.setCollideWorldBounds(true);
+    }
+    addGhost(){
+        this.ghost = this.add.sprite(this.w / 2, this.h / 2, 'player').setScale(0.5).setAlpha(0.25);
+        this.time.addEvent({
+            delay: 1,
+            callback: () => {
+                let x = this.player?.x;
+                let y = this.player?.y;
+                this.time.delayedCall(500, () => {
+                    this.ghost!.x = x as number;
+                    this.ghost!.y = y as number;
+                })
+            },
+            loop: true
+        })
     }
     create() {
-        this.physics.world.setBounds(0, 0, this.game.config.width, this.game.config.height, true, true, true, true);
-        this.cursors = this.input.keyboard?.createCursorKeys();
-        // this.wall = this.matter.add.rectangle(this.game.config.width * 0.5, this.game.config.height * 0.5, this.game.config.width * 0.8, 100, { isStatic: true });
+        this.setUp();
 
-        this.player = this.physics.add.sprite(this.game.config.width * 0.5, this.game.config.height * 0.5, 'player').setScale(0.4).setCollideWorldBounds(true, 0, 0, true);
-        console.log(this.player)
-        this.player.jumpCount = 2;
-        this.player.setBounce(0.5, 0)
-        // this.player.
-        this.physics.world.on('worldbounds', (body, up, down, left, right) => {
+        //get rid of this if you don't want the ghost
+        this.addGhost();
+        
 
-            if(!up) {
-                this.player.jumpCount = 2;
-            } else {
-                console.log("up")
-            }
-        });
-
-        this.cursors.up.on('down', (event: KeyboardEvent) => {
-            console.log("up")
-            this.jump();
-        })
-        this.cursors.space.on('down', (event: KeyboardEvent) => {
-            this.jump();
-        })
     }
     update() {
-        if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-500);
-        } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(500);
+        //call the update function of the player
+        //which checks for Player.inAir and Player.jumpCount
+        this.player?.update();
+        if(this.player?.inAir){
+            this.player?.setVelocityY(this.player?.body.velocity.y + TestScene.GRAVITY);
         } else {
-            this.player.setVelocityX(0);
+            this.player?.setVelocityY(TestScene.GRAVITY);
         }
+
+        if(this.keys.left?.isDown||this.keys.right?.isDown){
+            if(this.keys.left?.isDown){
+                this.player?.setVelocityX(-TestScene.X_INC);
+            }
+            if(this.keys.right?.isDown){
+                this.player?.setVelocityX(TestScene.X_INC);
+            }
+        } else  {
+            this.player?.setVelocityX(0);
+        }
+
     }
 }
 
@@ -65,7 +108,6 @@ let game = new Phaser.Game({
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 2000 },
             debug: true
         }
     },
