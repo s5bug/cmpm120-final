@@ -54,8 +54,8 @@ class TestScene extends Phaser.Scene {
                 let x = this.player?.x;
                 let y = this.player?.y;
                 this.time.delayedCall(500, () => {
-                    this.ghost.x = x as number;
-                    this.ghost.y = y as number;
+                    this.ghost.x = x;
+                    this.ghost.y = y;
                 })
             },
             loop: true
