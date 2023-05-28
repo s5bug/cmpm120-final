@@ -32,8 +32,8 @@ class TestScene extends Phaser.Scene {
         this.keys.jump = this.input.keyboard!.addKey('W');
         this.keys.left = this.input.keyboard!.addKey('A');
         this.keys.right = this.input.keyboard!.addKey('D');
-        this.keys.jump?.on('down', () => {
-            this.player?.jump();
+        this.keys.jump!.on('down', () => {
+            this.player.isJumpHeld = true;
         })
     }
     setUp() {
@@ -54,8 +54,8 @@ class TestScene extends Phaser.Scene {
                 let x = this.player?.x;
                 let y = this.player?.y;
                 this.time.delayedCall(500, () => {
-                    this.ghost!.x = x as number;
-                    this.ghost!.y = y as number;
+                    this.ghost.x = x as number;
+                    this.ghost.y = y as number;
                 })
             },
             loop: true
