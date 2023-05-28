@@ -33,11 +33,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             } else if (this.state == PlayerState.RIGHT_SLIDE) {
                 this.setVelocityX(-Player.TOP_SPEED);
             }
-
-
+        }
+    }
+    private setPlayerState(){
+        if (this.body.touching.down || this.body.touching.left || this.body.touching.right ){
+            if (this.body.touching.down ) {
+                this.state = PlayerState.ON_GROUND;
+            }
+            if (this.body.touching.left  ) {
+                this.state = PlayerState.LEFT_SLIDE;
+            }
+            if (this.body.touching.right ) {
+                this.state = PlayerState.RIGHT_SLIDE;
+            }
+        } else {
+            this.state = PlayerState.IN_AIR;
         }
     }
     update() {
+        this.setPlayerState();
         //xor the moving because if youre pressing both we want 0 velocity
         if ((this.movingLeft && !this.movingRight) || (this.movingRight && !this.movingLeft)) {
             if(this.movingLeft && this.state == PlayerState.LEFT_SLIDE){
