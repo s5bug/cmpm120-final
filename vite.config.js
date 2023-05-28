@@ -10,8 +10,8 @@ export default defineConfig(({ command, mode }) => {
     }
     return {
         build: {
-          assetsInlineLimit: 0,
+            assetsInlineLimit: 0
+        },
         base: basePath
     }
-  }
 })
