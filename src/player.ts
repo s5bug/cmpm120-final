@@ -32,7 +32,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.isJumpHeld = false;
     }
 
-    jump() {
+    private jump() {
         if (this.jumpCount) {
             this.setVelocityY(Player.JUMP_HEIGHT);
             this.jumpCount--;

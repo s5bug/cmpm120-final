@@ -73,23 +73,7 @@ class TestScene extends Phaser.Scene {
         } else {
             this.player.movingRight = false;
         }
-        
-        if(this.player.body.touching.down || this.player.body.touching.left || this.player.body.touching.right ){
-            if (this.player.body.touching.down ) {
-                this.player.state = PlayerState.ON_GROUND;
-            }
-            if (this.player.body.touching.left  ) {
-                this.player.state = PlayerState.LEFT_SLIDE;
-            }
-            if (this.player.body.touching.right ) {
-                this.player.state = PlayerState.RIGHT_SLIDE;
-            }
-        } else {
-            this.player.state = PlayerState.IN_AIR;
-        }
-        
-        // console.log(PlayerState[this.player.state])
-        // console.log(this.player.body.onWorldBounds)
+
 
         this.player.update();
     }
@@ -103,6 +87,7 @@ class TestScene extends Phaser.Scene {
         this.obstacles.push(this.add.rectangle(this.w / 2, this.h-50, this.w, 100, 0x00ff00) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
         this.obstacles.push(this.add.rectangle(0, 100, 100, this.h-200, 0x00ff00).setOrigin(0) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
         this.obstacles.push(this.add.rectangle(this.w-100, 100, 100, this.h-200, 0x00ff00).setOrigin(0) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
+        this.obstacles.push(this.add.rectangle(400, 100, 100, this.w * 0.6, 0x00ff00).setOrigin(0,0.5) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
 
         this.obstacles.forEach((obstacle) => {
 
@@ -112,6 +97,7 @@ class TestScene extends Phaser.Scene {
         })
     }
     update() {
+        // this.player.update();
         this.checkPlayerState();
     }
 }
