@@ -1,6 +1,6 @@
 import 'phaser';
 import player from './assets/player.png';
-import { Player, PlayerState } from './player';
+import { Player } from './player';
 
 type Keys = {
     jump: Phaser.Input.Keyboard.Key,
