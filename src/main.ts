@@ -1,38 +1,34 @@
 import 'phaser';
 import player from './assets/player.png';
-import { Player } from './player';
+import { Player, PlayerState } from './player';
+
 type Keys = {
-    jump: Phaser.Input.Keyboard.Key | null,
-    left: Phaser.Input.Keyboard.Key | null,
-    right: Phaser.Input.Keyboard.Key | null,
+    jump: Phaser.Input.Keyboard.Key,
+    left: Phaser.Input.Keyboard.Key,
+    right: Phaser.Input.Keyboard.Key,
 }
 class TestScene extends Phaser.Scene {
-    player: null | Player;
-    ghost: null | Phaser.GameObjects.Sprite;
-    w: number
-    h: number
-    keys: Keys
-    
-    //constants. modify these to tweak 
-    static GRAVITY: number = 50;
-    static X_INC: number = 600;
-    
+    player!: Player;
+    ghost!: Phaser.GameObjects.Sprite;
+    w!: number
+    h!: number
+    keys!: Keys
+    obstacles!: (Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body })[];
+
+
+
     constructor() {
         super('test');
-        this.w = 0;
-        this.h = 0;
-        this.player = null;
-        this.ghost = null;
-        this.keys = {
-            jump: null,
-            left: null,
-            right: null,
-        };
     }
     preload() {
         this.load.image('player', player);
     }
-    addKeys(){
+    addKeys() {
+        this.keys = {
+            jump: this.input.keyboard!.addKey('W'),
+            left: this.input.keyboard!.addKey('A'),
+            right: this.input.keyboard!.addKey('D'),
+        }
         this.keys.jump = this.input.keyboard!.addKey('W');
         this.keys.left = this.input.keyboard!.addKey('A');
         this.keys.right = this.input.keyboard!.addKey('D');
@@ -40,7 +36,7 @@ class TestScene extends Phaser.Scene {
             this.player?.jump();
         })
     }
-    setUp(){
+    setUp() {
         this.addKeys();
         this.w = this.game.config.width as number;
         this.h = this.game.config.height as number;
@@ -50,8 +46,8 @@ class TestScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, this.w, this.h);
         this.player.setCollideWorldBounds(true);
     }
-    addGhost(){
-        this.ghost = this.add.sprite(this.w / 2, this.h / 2, 'player').setScale(0.5).setAlpha(0.25);
+    addGhost() {
+        this.ghost = this.add.sprite(this.player!.x, this.player!.y, 'player').setScale(0.5).setAlpha(0.25);
         this.time.addEvent({
             delay: 1,
             callback: () => {
@@ -65,35 +61,58 @@ class TestScene extends Phaser.Scene {
             loop: true
         })
     }
+    checkPlayerState(){
+
+        if (this.keys.left.isDown) {
+            this.player.movingLeft = true;
+        } else {
+            this.player.movingLeft = false;
+        }
+        if (this.keys.right.isDown) {
+            this.player.movingRight = true;
+        } else {
+            this.player.movingRight = false;
+        }
+        
+        if(this.player.body.touching.down || this.player.body.touching.left || this.player.body.touching.right ){
+            if (this.player.body.touching.down ) {
+                this.player.state = PlayerState.ON_GROUND;
+            }
+            if (this.player.body.touching.left  ) {
+                this.player.state = PlayerState.LEFT_SLIDE;
+            }
+            if (this.player.body.touching.right ) {
+                this.player.state = PlayerState.RIGHT_SLIDE;
+            }
+        } else {
+            this.player.state = PlayerState.IN_AIR;
+        }
+        
+        // console.log(PlayerState[this.player.state])
+        // console.log(this.player.body.onWorldBounds)
+
+        this.player.update();
+    }
     create() {
         this.setUp();
-
         //get rid of this if you don't want the ghost
         this.addGhost();
-        
+        this.obstacles = [];
+        this.obstacles.push(this.add.rectangle(this.w / 2, this.h - 2 * this.player!.displayHeight, this.w * 0.6, 100, 0x00ff00) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body } );
+        this.obstacles.push(this.add.rectangle(this.w / 2, 50, this.w, 100, 0x00ff00) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
+        this.obstacles.push(this.add.rectangle(this.w / 2, this.h-50, this.w, 100, 0x00ff00) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
+        this.obstacles.push(this.add.rectangle(0, 100, 100, this.h-200, 0x00ff00).setOrigin(0) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
+        this.obstacles.push(this.add.rectangle(this.w-100, 100, 100, this.h-200, 0x00ff00).setOrigin(0) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
 
+        this.obstacles.forEach((obstacle) => {
+
+            this.physics.add.existing(obstacle);
+            obstacle.body.setImmovable(true);
+            this.physics.add.collider(this.player, obstacle);
+        })
     }
     update() {
-        //call the update function of the player
-        //which checks for Player.inAir and Player.jumpCount
-        this.player?.update();
-        if(this.player?.inAir){
-            this.player?.setVelocityY(this.player?.body.velocity.y + TestScene.GRAVITY);
-        } else {
-            this.player?.setVelocityY(TestScene.GRAVITY);
-        }
-
-        if(this.keys.left?.isDown||this.keys.right?.isDown){
-            if(this.keys.left?.isDown){
-                this.player?.setVelocityX(-TestScene.X_INC);
-            }
-            if(this.keys.right?.isDown){
-                this.player?.setVelocityX(TestScene.X_INC);
-            }
-        } else  {
-            this.player?.setVelocityX(0);
-        }
-
+        this.checkPlayerState();
     }
 }
 
