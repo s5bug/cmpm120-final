@@ -47,12 +47,12 @@ class TestScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
     }
     addGhost() {
-        this.ghost = this.add.sprite(this.player!.x, this.player!.y, 'player').setScale(0.5).setAlpha(0.25);
+        this.ghost = this.add.sprite(this.player.x, this.player.y, 'player').setScale(0.5).setAlpha(0.25);
         this.time.addEvent({
             delay: 1,
             callback: () => {
-                let x = this.player?.x;
-                let y = this.player?.y;
+                let x = this.player.x;
+                let y = this.player.y;
                 this.time.delayedCall(500, () => {
                     this.ghost.x = x;
                     this.ghost.y = y;
