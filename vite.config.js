@@ -11,15 +11,7 @@ export default defineConfig(({ command, mode }) => {
     return {
         build: {
           assetsInlineLimit: 0,
-            rollupOptions: {
-              input: {
-                app: './core-gameplay-1.html',
-              },
-            },
-          },
-          server: {
-            open: '/core-gameplay-1.html',
-          },
         base: basePath
     }
+  }
 })
