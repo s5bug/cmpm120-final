@@ -87,7 +87,6 @@ class TestScene extends Phaser.Scene {
         this.obstacles.push(this.add.rectangle(this.w / 2, this.h-50, this.w, 100, 0x00ff00) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
         this.obstacles.push(this.add.rectangle(0, 100, 100, this.h-200, 0x00ff00).setOrigin(0) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
         this.obstacles.push(this.add.rectangle(this.w-100, 100, 100, this.h-200, 0x00ff00).setOrigin(0) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
-        this.obstacles.push(this.add.rectangle(400, 100, 100, this.w * 0.6, 0x00ff00).setOrigin(0,0.5) as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body });
 
         this.obstacles.forEach((obstacle) => {
 
