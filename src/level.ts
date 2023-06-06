@@ -1,30 +1,35 @@
 import 'phaser';
-import lab from './assets/lab.png';
 import dashStill from './assets/dashstill.png';
 import portal from './assets/portal.png';
 import pause from './assets/pause.png';
 import {Player} from "./player.ts";
 
+type LevelOptions = {
+    levelKey: string,
+    levelUrl: string,
+    tilesetName: string,
+    tilesetKey: string,
+    tilesetUrl: string
+}
+
 export default abstract class Level extends Phaser.Scene {
-    levelKey: string;
-    levelUrl: string;
+    levelOptions: LevelOptions;
 
     pause!: Phaser.GameObjects.Image;
     flag!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     map!: Phaser.Tilemaps.Tilemap;
     player!: Player;
 
-    constructor(key: string, levelKey: string, levelUrl: string) {
+    constructor(key: string, levelOptions: LevelOptions) {
         super(key);
 
-        this.levelKey = levelKey;
-        this.levelUrl = levelUrl;
+        this.levelOptions = levelOptions
     }
 
     preload(): void {
-        this.load.tilemapTiledJSON(this.levelKey, this.levelUrl);
+        this.load.tilemapTiledJSON(this.levelOptions.levelKey, this.levelOptions.levelUrl);
 
-        this.load.spritesheet('lab', lab, { frameWidth: 16, frameHeight: 16 });
+        this.load.spritesheet(this.levelOptions.tilesetKey, this.levelOptions.tilesetUrl, { frameWidth: 16, frameHeight: 16 });
 
         this.load.image('player', dashStill);
         this.load.image('flag', portal);
@@ -56,8 +61,8 @@ export default abstract class Level extends Phaser.Scene {
         this.flag.setScale(4);
         this.flag.setImmovable(true);
 
-        this.map = this.make.tilemap({ key: this.levelKey });
-        let groundTiles = this.map.addTilesetImage('lab')!;
+        this.map = this.make.tilemap({ key: this.levelOptions.levelKey });
+        let groundTiles = this.map.addTilesetImage(this.levelOptions.tilesetName, this.levelOptions.tilesetKey)!;
         let wallLayer = this.map.createLayer('walls', groundTiles, 0, 0)!;
         wallLayer.setScale(4);
         // wallLayer.setDepth(0);
